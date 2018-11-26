@@ -11,3 +11,11 @@ In an hypothetical context of property management, users need to use this micro 
 * Users can add/update their personal informations on the platform (firstname, lastname, birth-date)
 * Users can only check the properties of a specefic city
 * An owner can modify only the characteristics of it's own property
+
+## Installation instruction
+
+## Linux (on Ubuntu)
+
+### Install postgresql
+* sudo apt-get update
+* sudo apt-get install postgresql postgresql-contrib
