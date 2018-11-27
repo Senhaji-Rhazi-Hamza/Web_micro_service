@@ -10,7 +10,7 @@ $$
 DECLARE
 city_id INTEGER;
 BEGIN
-  SELECT id INTO city_id FROM city WHERE city_name = val_city_name;
+  SELECT id INTO city_id FROM city WHERE LOWER(city_name) = LOWER(val_city_name);
   IF FOUND THEN
     RETURN city_id;
   ELSE
@@ -25,7 +25,7 @@ $$
 DECLARE
 property_id INTEGER;
 BEGIN
-  SELECT id INTO property_id FROM property_type WHERE tag_type = val_tag_type;
+  SELECT id INTO property_id FROM property_type WHERE LOWER(tag_type) = LOWER(val_tag_type);
   IF FOUND THEN
     RETURN property_id;
   ELSE
@@ -34,13 +34,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 /*GET WEB USER_ID*/
-CREATE OR REPLACE FUNCTION  get_web_user_id(val_firstname VARCHAR(64), val_lastname VARCHAR(64))
+CREATE OR REPLACE FUNCTION  get_web_user_id(val_firstname VARCHAR(64), val_lastname VARCHAR(64), val_password VARCHAR(64))
 RETURNS INTEGER as
 $$
 DECLARE
 user_id INTEGER;
 BEGIN
-  SELECT id into user_id FROM web_user WHERE firstname = val_firstname and lastname = val_lastname;
+  SELECT id into user_id FROM web_user WHERE LOWER(firstname) = LOWER(val_firstname) and LOWER(lastname) = LOWER(val_lastname);
   IF FOUND THEN
     RETURN user_id;
   ELSE
@@ -55,7 +55,7 @@ $$
 DECLARE
 property_id INTEGER;
 BEGIN
-  SELECT id into property_id FROM property WHERE name = val_name;
+  SELECT id into property_id FROM property WHERE LOWER(name) = LOWER(val_name);
   IF FOUND THEN
     RETURN property_id;
   ELSE
@@ -64,13 +64,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 /****CONSTRUCTORS*****/
-CREATE OR REPLACE FUNCTION  add_new_web_user(firstname VARCHAR(64), lastname VARCHAR(64), birth_date date, city_name VARCHAR(64))
+CREATE OR REPLACE FUNCTION  add_new_web_user(firstname VARCHAR(64), lastname VARCHAR(64), birth_date date, city_name VARCHAR(64), password VARCHAR(64))
 RETURNS BOOLEAN as
 $$
 DECLARE
 city_id INTEGER := get_city_id(city_name);
 BEGIN
-  INSERT INTO web_user Values (DEFAULT, firstname, lastname, birth_date, city_allowed_id);
+  INSERT INTO web_user Values (DEFAULT, firstname, lastname, birth_date, city_id, password);
   RETURN FOUND;
 END;
 $$ LANGUAGE plpgsql;
@@ -98,15 +98,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 /****SETTERS*****/
-CREATE OR REPLACE FUNCTION  update_web_user(val_firstname VARCHAR(64), val_lastname VARCHAR(64), new_firstname VARCHAR(64), new_lastname VARCHAR(64), new_birth_date date, new_city_allowed VARCHAR(64))
+CREATE OR REPLACE FUNCTION  update_web_user(val_firstname VARCHAR(64), val_lastname VARCHAR(64), new_firstname VARCHAR(64), new_lastname VARCHAR(64), new_birth_date date, new_city_allowed VARCHAR(64), val_password VARCHAR(64))
 RETURNS BOOLEAN as
 $$
 DECLARE
 user_id  INTEGER:= get_web_user_id(val_firstname, val_lastname);
-new_city_allowed_id INTEGER := get_city_id(new_city);
+new_city_id INTEGER := get_city_id(new_city);
 BEGIN
   UPDATE web_user
-  SET firstname = new_firstname, lastname = new_lastname, birth_date = new_birth_date, city_allowed_id = new_city_allowed_id
+  SET firstname = new_firstname, lastname = new_lastname, birth_date = new_birth_date, city_id = new_city_id, password = val_password
   WHERE id = user_id;
   RETURN FOUND;
 END;
@@ -177,7 +177,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-/************VIEWS***************/
+/************OTHERS***************/
 CREATE OR REPLACE FUNCTION consult_properties (city_name VARCHAR(64))
  RETURNS TABLE (
  name_property VARCHAR(64),
@@ -188,6 +188,15 @@ DECLARE
 val_city_id INTEGER := get_city_id(city_name);
 BEGIN
  RETURN QUERY SELECT p.name as PROPERTY_NAME, count(*) AS NUMBER_OF_ROOMS from room r,property p where r.property_id = p.id and city_id = val_city_id GROUP BY p.name;
+END;
+$$
+LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION auth_web_user(val_firstname VARCHAR(64), val_lastname VARCHAR(64), val_password VARCHAR(64))
+RETURNS BOOLEAN AS
+$$
+BEGIN
+  PERFORM * FROM web_user where firstname = val_firstname and lastname = val_lastname and password = val_password;
+  RETURN FOUND;
 END;
 $$
 LANGUAGE plpgsql;

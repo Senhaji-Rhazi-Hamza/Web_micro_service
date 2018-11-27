@@ -1,4 +1,4 @@
-CREATE DATABASE web_service_db;
+city_idCREATE DATABASE web_service_db;
 \c web_service_db
 
 
@@ -36,10 +36,11 @@ CREATE TABLE  web_user
 	firstname        VARCHAR(64)  NOT NULL,
   lastname        VARCHAR(64)  NOT NULL,
 	birth_date      date    NOT NULL,
-	city_allowed_id INTEGER NOT NULL,
+	city_id INTEGER NOT NULL,
+	password VARCHAR(64) NOT NULL,
   UNIQUE (firstname, lastname),
   PRIMARY KEY (id),
-	FOREIGN KEY (city_allowed_id) REFERENCES city(id)
+	FOREIGN KEY (city_id) REFERENCES city(id)
 );
 
 
@@ -75,28 +76,7 @@ CREATE TABLE  room
   PRIMARY KEY (id),
   FOREIGN KEY (property_id) REFERENCES property(id) ON DELETE CASCADE
 );
-
-
-
-/*NB; INSERT VALUES for city and property_type (should be modify by the admin)  */
-INSERT INTO city VALUES
-(DEFAULT,  'Paris'),
-(DEFAULT,  'Lyon'),
-(DEFAULT,  'Casablanca'),
-(DEFAULT,  'Fès');
-
-INSERT INTO property_type Values
-(DEFAULT, 'Villa'),
-(DEFAULT, 'Appartement'),
-(DEFAULT, 'Duplex');
-/*EXAMPLE web_user admin*/
-INSERT INTO web_user VALUES
-(DEFAULT,  'Hamza','SENHAJI RHAZI', '11/12/1992',1);
-
-INSERT INTO property VALUES
-(DEFAULT,  'Hamza','SENHAJI RHAZI',1,1,1);
-
-INSERT INTO room VALUES
-(DEFAULT,  'Salon',1, 1,1,1);
-INSERT INTO room VALUES
-(DEFAULT,  'r2',1, 1,1,1);
+/*STORED PROCEDURES FUNCTIONS initialisation*/
+\i add_funcs.sql
+/*DATA initialisation from the file data_init.sql"*/
+\i data_init.sql
