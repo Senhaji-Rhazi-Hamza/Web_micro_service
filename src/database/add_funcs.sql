@@ -98,17 +98,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 /****SETTERS*****/
-CREATE OR REPLACE FUNCTION  update_web_user(val_firstname VARCHAR(64), val_lastname VARCHAR(64), new_firstname VARCHAR(64), new_lastname VARCHAR(64), new_birth_date date, new_city_allowed VARCHAR(64), val_password VARCHAR(64))
-RETURNS BOOLEAN as
+CREATE OR REPLACE FUNCTION  update_web_user(val_firstname VARCHAR(64), val_lastname VARCHAR(64), new_firstname VARCHAR(64), new_lastname VARCHAR(64), new_birth_date date, new_city_name VARCHAR(64), new_password VARCHAR(64))
+RETURNS VOID as
 $$
 DECLARE
 user_id  INTEGER:= get_web_user_id(val_firstname, val_lastname);
-new_city_id INTEGER := get_city_id(new_city);
+new_city_id INTEGER := get_city_id(new_city_name);
 BEGIN
   UPDATE web_user
-  SET firstname = new_firstname, lastname = new_lastname, birth_date = new_birth_date, city_id = new_city_id, password = val_password
+  SET firstname = new_firstname, lastname = new_lastname, birth_date = new_birth_date, city_id = new_city_id, password = new_password
   WHERE id = user_id;
-  RETURN FOUND;
+  /*RETURN FOUND;*/
 END;
 $$ LANGUAGE plpgsql;
 
@@ -118,14 +118,18 @@ RETURNS BOOLEAN as
 $$
 DECLARE
 val_property_id INTEGER := get_property_id(name);
-new_property_type_id INTEGER := get_property_type_id(new_tag);
+new_property_type_id INTEGER := get_property_type_id(new_tag_type);
 new_owner_id  INTEGER := get_web_user_id(new_owner_firstname, new_owner_lastname);
 new_city_id INTEGER := get_city_id(new_city_name);
 BEGIN
   UPDATE property
   SET name = new_name, description = new_description, owner_id = new_owner_id,  property_type_id = new_property_type_id, city_id = new_city_id
   WHERE id = val_property_id and owner_id = val_owner_id;
-  RETURN FOUND;
+  IF FOUND THEN
+    RETURN FOUND;
+  ELSE
+    RAISE EXCEPTION 'PROPERTY %  not found', val_name;
+  END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -161,7 +165,7 @@ $$
 DECLARE
 val_property_id  INTEGER:= get_property_id(property_name);
 BEGIN
-  DELETE FROM room WHERE property_id = val_property_id and val_owner_id = (select owner_id from property where id = val_property_id);
+  DELETE FROM room WHERE property_id = val_property_id and val_owner_id = (select owner_id from property where id = val_property_id) and name = room_name;
   RETURN FOUND;
 END;
 $$ LANGUAGE plpgsql;
@@ -178,10 +182,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 /************OTHERS***************/
+DROP  FUNCTION consult_properties (city_name VARCHAR(64));
 CREATE OR REPLACE FUNCTION consult_properties (city_name VARCHAR(64))
  RETURNS TABLE (
  name_property VARCHAR(64),
- number_of_rooms INTEGER
+ number_of_rooms BIGINT
 )
 AS $$
 DECLARE

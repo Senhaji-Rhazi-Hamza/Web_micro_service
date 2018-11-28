@@ -1,4 +1,4 @@
-city_idCREATE DATABASE web_service_db;
+CREATE DATABASE web_service_db;
 \c web_service_db
 
 
@@ -72,7 +72,6 @@ CREATE TABLE  room
   windows            INTEGER  NOT NULL, /* number of windows */
   sun_expostion      INTEGER  NOT NULL, /* number of facads exposed to the sun */
   property_id        INTEGER,
-	UNIQUE (property_id, name),
   PRIMARY KEY (id),
   FOREIGN KEY (property_id) REFERENCES property(id) ON DELETE CASCADE
 );
