@@ -80,3 +80,9 @@ def consult_properties(conn, city_name):
     dic = [{'properties':el[0],'number_of_room':el[1]} for el in results]
     cur.close()
     return dic
+def get_user_info(firstname, lastname):
+    cur = conn.cursor()
+    cur.execute("select id, firstname, lastname, birth_date, city_id from web_user where firstname='{}' and lastname ='{}'".format(firstname, lastname))
+    res = cur.fetchone()
+    cur.close()
+    return {"id":res[0], "firstname":res[1], "lastname":res[2],"birth_date":res[3], "city_id":res[4]}
