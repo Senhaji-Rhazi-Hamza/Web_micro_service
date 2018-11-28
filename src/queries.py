@@ -12,7 +12,7 @@ def add_new_web_user(conn, firstname, lastname, birth_date, city_name, password)
     cur.execute("SELECT add_new_web_user('{}','{}','{}','{}','{}')".format(firstname, lastname, birth_date, city_name, password))
     cur.close()
 
-#def param_new_params(params, new_params):
+
 def auth_web_user(conn, firstname, lastname, password):
     cur = conn.cursor()
     h = hashlib.md5()
