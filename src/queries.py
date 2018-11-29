@@ -15,9 +15,7 @@ def add_new_web_user(conn, firstname, lastname, birth_date, city_name, password)
 
 def auth_web_user(conn, firstname, lastname, password):
     cur = conn.cursor()
-    h = hashlib.md5()
-    h.update(password.encode('utf-8'))
-    password = h.hexdigest()
+    password = hash_password(password)
     cur.execute("SELECT auth_web_user('{}','{}','{}')".format(firstname, lastname, password))
     res = cur.fetchone()[0]
     cur.close()
@@ -26,7 +24,7 @@ def auth_web_user(conn, firstname, lastname, password):
 def update_web_user(conn, firstname, lastname, password, new_firstname, new_lastname, new_birth_date, new_city_name, new_password):
     if (auth_web_user(conn, firstname, lastname, password)):
         cur = conn.cursor()
-        cur.execute("SELECT update_web_user('{}','{}','{}','{}','{}','{}','{}')".format(firstname, lastname , new_firstname, new_lastname , new_birth_date, new_city_name, new_password))
+        cur.execute("SELECT update_web_user('{}','{}','{}','{}','{}','{}','{}')".format(firstname, lastname , new_firstname, new_lastname , new_birth_date, new_city_name, hash_password(new_password)))
         cur.close()
     else:
         print("Authentification failed")
@@ -58,9 +56,9 @@ def remove_property(conn, property_name, val_owner_id):
     cur.execute("SELECT remove_property('{}','{}')".format(property_name, val_owner_id))
     cur.close()
 
-def add_room_to_property(conn, name , size , windows , sun_expostion , name_property):
+def add_room_to_property(conn, name , size , windows , sun_expostion , property_name):
     cur = conn.cursor()
-    cur.execute("SELECT add_room_to_property('{}','{}','{}','{}','{}')".format(name , size , windows , sun_expostion , name_property))
+    cur.execute("SELECT add_room_to_property('{}','{}','{}','{}','{}')".format(name , size , windows , sun_expostion , property_name))
     cur.close()
 
 def update_room_of_property(conn, property_name , val_owner_id , val_name ,  new_name , new_size , new_windows , new_sun_expostion):
@@ -80,9 +78,11 @@ def consult_properties(conn, city_name):
     dic = [{'properties':el[0],'number_of_room':el[1]} for el in results]
     cur.close()
     return dic
-def get_user_info(firstname, lastname):
+def get_user_info(conn, firstname, lastname):
     cur = conn.cursor()
     cur.execute("select id, firstname, lastname, birth_date, city_id from web_user where firstname='{}' and lastname ='{}'".format(firstname, lastname))
     res = cur.fetchone()
+    cur.execute("select name from property where owner_id={}".format(res[0]))
+    properties = [el[0] for el in cur.fetchall()]
     cur.close()
-    return {"id":res[0], "firstname":res[1], "lastname":res[2],"birth_date":res[3], "city_id":res[4]}
+    return {"id":res[0], "firstname":res[1], "lastname":res[2],"birth_date":res[3], "city_id":res[4],"properties":properties}

@@ -87,11 +87,11 @@ BEGIN
   RETURN FOUND;
 END;
 $$ LANGUAGE plpgsql;
-CREATE OR REPLACE FUNCTION add_room_to_property(name VARCHAR(64), size INTEGER, windows INTEGER, sun_expostion INTEGER, name_property VARCHAR(64))
+CREATE OR REPLACE FUNCTION add_room_to_property(name VARCHAR(64), size INTEGER, windows INTEGER, sun_expostion INTEGER, property_name VARCHAR(64))
 RETURNS BOOLEAN as
 $$
 DECLARE
-val_property_id INTEGER := get_property_id(name_property);
+val_property_id INTEGER := get_property_id(property_name);
 BEGIN
   INSERT INTO room Values (DEFAULT, name, size, windows, sun_expostion, val_property_id);
   RETURN FOUND;
@@ -183,9 +183,9 @@ $$ LANGUAGE plpgsql;
 
 /************OTHERS***************/
 DROP  FUNCTION consult_properties (city_name VARCHAR(64));
-CREATE OR REPLACE FUNCTION consult_properties (city_name VARCHAR(64))
+CREATE OR REPLACE FUNCTION consult_properties(city_name VARCHAR(64))
  RETURNS TABLE (
- name_property VARCHAR(64),
+ property_name VARCHAR(64),
  number_of_rooms BIGINT
 )
 AS $$
