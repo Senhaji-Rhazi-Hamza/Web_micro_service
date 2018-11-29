@@ -59,7 +59,7 @@ Remember your root directory should be src
 #### Non Linux
 A Dockerfile is provided in the root project directory in order to make the server runing in a docker container, the database doesn't run in a container
 
-once you have installed docker :https://docs.docker.com/install/#reporting-security-issues
+once you have installed docker :https://docs.docker.com/install/
 
 run the following commands in the root project directory :
 
