@@ -1,5 +1,5 @@
 # Web_micro_service
-This project is a micro service example with REST API using python, flask and postgresql that will allow users to interact with a database using the REST API
+This project is a micro service example with using python, flask and postgresql that will allow users to interact with a database following the REST API philosophy
 
 # Use case description
 ## Context
@@ -12,9 +12,19 @@ In an hypothetical context of property management, users need to use this micro 
 * Users can only check the properties of a specefic city
 * An owner can modify only the characteristics of it's own property
 
+##  What you will find in this project
+### Database
+* You will find a complete conception of the BDD in src/database/init_database.sql
+* You will find procedures functions in src/database/add_funcs.sql
+* You will find basic initialization of src/database/init_data.sql (for city table (villes de frances))
+### python files
+* You will find queries method interfacing python methods and postgresql in queries.py
+* You will find the server logic in server.py
+* You will find a basic test in a jupyter notebook in test/basic test.ipynb
+### Docker
+* You will find a Dockerfile provided in the root in order to run the server in a container
+
 ## Installation instruction
-
-
 
 ### Database
 #### Linux (Tested on Ubuntu 18)
